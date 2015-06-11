@@ -27,7 +27,7 @@ end
     consumer = OAuth::Consumer.new(ENV['SCHOOLOGY_KEY'], ENV['SCHOOLOGY_SECRET'], {:site => 'https://api.schoology.com/v1'})
     access = OAuth::AccessToken.new(consumer, credentials['token'], credentials['secret'])
     data = JSON.parse(access.get("/users/#{uid}/sections").body)
-    data2 = JSON.parse(access.get("/sections/134636787/assignments").body)
+    #data2 = JSON.parse(access.get("/sections/134636787/assignments").body)
     classes_period = {}
     classes_ids = {}
     data['section'].each do |datum|
@@ -35,10 +35,11 @@ end
       period_num = datum["section_title"].split('-')[1]
       period_id = datum['id']
       if title != "Staples Library Learning Commons"
-      classes_period[period_num] = title
-      classes_ids[period_id] = title
-        end
+        classes_period[period_num] = title
+        classes_ids[title] = period_id
+      end
     end
+
     i = 1
     while i <= 8
       if !classes_period.has_key?(i.to_s)
@@ -46,8 +47,44 @@ end
       end
       i += 1
     end
-    data2 = JSON.parse(access.get("https://api.schoology.com/v1/sections/134636787/assignments?start=0&limit=#{data2['total']}").body)
+    #data2 = JSON.parse(access.get("https://api.schoology.com/v1/sections/134636787/assignments?start=0&limit=#{data2['total']}").body)
 
+    dates ={}
+    full = true
+    q = 1
+    while full
+      assignments_for_day = []
+      while q <= 8
+        if !classes_period.has_key?(q.to_s)
+          classIQ_title = classes_period[q]
+          classIQ_id = classes_ids[classIQ_title]
+i
+          class_assi = JSON.parse(access.get("/sections/#{classIQ_id}/assignments").body)
+          puts class_assi['total'].class
+          puts class_assi["total"].inspect
+          puts "hello World"
+          #class_assi = JSON.parse(access.get("https://api.schoology.com/v1/sections/#{classIQ_id}/assignments?start=0&limit=#{class_assi['total']}").body)
+          class_assi.each do |assi|
+            date = Date.parse(assi['due'])
+            if date.ld <= Date.today.ld
+              assignments_for_day.push(assi)
+            end
+          end
+        end
+        q += 1
+      end
+      if assignments_for_day != nil
+          dates[Date.today] = assignments_for_day
+          full = false
+      else
+        full = false
+      end
+    end
+
+
+
+
+=begin
     assignments = []
     puts data2.inspect
     data2['assignment'].each do |assignment|
@@ -58,6 +95,7 @@ end
       end
     end
     puts assignments.inspect
+=end
 
     session[:uid] = uid
 
