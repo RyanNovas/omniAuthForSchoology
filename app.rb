@@ -55,15 +55,23 @@ end
     while full
       assignments_for_day = []
       while q <= 8
-        if !classes_period.has_key?(q.to_s)
-          classIQ_title = classes_period[q]
+        puts "Entered period loop"
+        puts classes_period.inspect
+        if classes_period.has_key?(q.to_s)
+          puts "Entered if statement"
+          puts classes_period.inspect
+          classIQ_title = classes_period[q.to_s]
+          puts classIQ_title
           classIQ_id = classes_ids[classIQ_title]
-i
+          puts classIQ_id
           class_assi = JSON.parse(access.get("/sections/#{classIQ_id}/assignments").body)
           puts class_assi['total'].class
           puts class_assi["total"].inspect
+          puts class_assi.inspect
           puts "hello World"
           #class_assi = JSON.parse(access.get("https://api.schoology.com/v1/sections/#{classIQ_id}/assignments?start=0&limit=#{class_assi['total']}").body)
+          assignments = class_assi["assignment"]
+          puts assignments
           class_assi.each do |assi|
             date = Date.parse(assi['due'])
             if date.ld <= Date.today.ld
